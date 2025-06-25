@@ -32,6 +32,19 @@ impl Controller {
             Err(e) => Err(Error::Sql(e)),
         }
     }
+
+    pub(crate) async fn get(&self, id: uuid::Uuid) -> Result<response::Template, Error> {
+        match sqlx::query("SELECT * FROM templates WHERE id = $1")
+            .bind(id)
+            .map(map_template)
+            .fetch_one(&self.pool)
+            .await
+        {
+            Ok(template) => Ok(template),
+            Err(sqlx::Error::RowNotFound) => Err(Error::TemplateNotFound),
+            Err(e) => Err(Error::Sql(e)),
+        }
+    }
 }
 
 fn map_template(row: PgRow) -> response::Template {
