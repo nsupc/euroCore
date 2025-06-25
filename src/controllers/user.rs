@@ -240,8 +240,6 @@ fn map_user(row: PgRow) -> AuthorizedUser {
         id: row.get("id"),
         username: row.get("username"),
         password_hash: row.get("password_hash"),
-        claims: row
-            .get::<Option<Vec<String>>, _>("permissions")
-            .unwrap_or_default(),
+        claims: row.try_get("permissions").unwrap_or_default(),
     }
 }
