@@ -73,6 +73,8 @@ pub enum Error {
     InvalidPassword(String),
     #[error("Invalid header name: {0}")]
     InvalidHeaderName(#[from] InvalidHeaderName),
+    #[error("Invalid template")]
+    TemplateNotFound,
 }
 
 impl IntoResponse for Error {
@@ -107,6 +109,7 @@ impl IntoResponse for Error {
             Error::InvalidHeaderName(_) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, "Invalid header name")
             }
+            Error::TemplateNotFound => (StatusCode::NOT_FOUND, "Template not found"),
         };
 
         (status, message).into_response()
