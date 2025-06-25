@@ -45,6 +45,27 @@ impl Controller {
             Err(e) => Err(Error::Sql(e)),
         }
     }
+
+    pub(crate) async fn update(
+        &self,
+        id: uuid::Uuid,
+        input: request::Template,
+    ) -> Result<(), Error> {
+        match sqlx::query(
+            "UPDATE templates SET nation = $1, tgid = $2, key = $3, modified_at = $4 WHERE id = $5",
+        )
+        .bind(input.nation)
+        .bind(input.tgid)
+        .bind(input.key)
+        .bind(chrono::Utc::now())
+        .bind(id)
+        .execute(&self.pool)
+        .await
+        {
+            Ok(_) => Ok(()),
+            Err(e) => Err(Error::Sql(e)),
+        }
+    }
 }
 
 fn map_template(row: PgRow) -> response::Template {
