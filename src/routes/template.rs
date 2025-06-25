@@ -50,7 +50,7 @@ pub(crate) async fn get(
 
     let template = state.template_controller.get(id).await?;
 
-    Ok((StatusCode::CREATED, Json(template)))
+    Ok((StatusCode::OK, Json(template)))
 }
 
 pub(crate) async fn update(
