@@ -17,3 +17,8 @@ pub(crate) struct Template {
     pub(crate) tgid: i32,
     pub(crate) key: String,
 }
+
+#[derive(Deserialize)]
+pub(crate) struct Permissions {
+    pub(crate) permissions: Vec<String>,
+}
