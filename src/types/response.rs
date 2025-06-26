@@ -90,6 +90,7 @@ pub(crate) struct Template {
     pub(crate) nation: String,
     pub(crate) tgid: i32,
     pub(crate) key: String,
+    pub(crate) description: String,
     pub(crate) created_at: chrono::DateTime<chrono::Utc>,
     pub(crate) modified_at: chrono::DateTime<chrono::Utc>,
 }
