@@ -1,6 +1,6 @@
 [package]
 name = "eurocore"
-version = "0.10.1"
+version = "0.11.0"
 edition = "2024"
 
 [lib]
@@ -34,6 +34,8 @@ sqlx = { version = "0.8.6", features = [
     "migrate",
     "postgres",
     "chrono",
+    "uuid"
 ] }
 quick-xml = { version = "0.37", features = ["serialize"] }
 console-subscriber = "0.4.1"
+uuid = { version = "1.17.0", features = ["serde", "v4"] }

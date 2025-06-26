@@ -1,4 +1,4 @@
-use crate::controllers::{dispatch, rmbpost, telegram, user};
+use crate::controllers::{dispatch, rmbpost, telegram, template, user};
 
 #[derive(Clone, Debug)]
 pub(crate) struct AppState {
@@ -6,6 +6,7 @@ pub(crate) struct AppState {
     pub(crate) dispatch_controller: dispatch::Controller,
     pub(crate) rmbpost_controller: rmbpost::Controller,
     pub(crate) telegram_controller: telegram::Controller,
+    pub(crate) template_controller: template::Controller,
 }
 
 impl AppState {
@@ -14,12 +15,14 @@ impl AppState {
         dispatch_controller: dispatch::Controller,
         rmbpost_controller: rmbpost::Controller,
         telegram_controller: telegram::Controller,
+        template_controller: template::Controller,
     ) -> Self {
         AppState {
             user_controller,
             dispatch_controller,
             rmbpost_controller,
             telegram_controller,
+            template_controller,
         }
     }
 }

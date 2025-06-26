@@ -8,7 +8,7 @@ pub(crate) mod types;
 pub(crate) mod utils;
 pub(crate) mod workers;
 
-use crate::controllers::{dispatch, rmbpost, telegram, user};
+use crate::controllers::{dispatch, rmbpost, telegram, template, user};
 use crate::core::error::ConfigError as Error;
 use crate::core::{config::Args, state::AppState};
 use crate::routes::router;
@@ -86,11 +86,14 @@ pub async fn run() -> Result<(), Error> {
 
     let user_controller = user::Controller::new(db_pool.clone(), config.secret)?;
 
+    let template_controller = template::Controller::new(db_pool.clone());
+
     let state = AppState::new(
         user_controller,
         dispatch_controller,
         rmbpost_controller,
         telegram_controller,
+        template_controller,
     );
 
     sqlx::migrate!().run(&db_pool).await?;

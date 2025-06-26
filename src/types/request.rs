@@ -10,3 +10,16 @@ pub(crate) struct LoginData {
 pub(crate) struct UpdatePasswordData {
     pub(crate) new_password: String,
 }
+
+#[derive(Deserialize)]
+pub(crate) struct Template {
+    pub(crate) nation: String,
+    pub(crate) tgid: i32,
+    pub(crate) key: String,
+    pub(crate) description: String,
+}
+
+#[derive(Deserialize)]
+pub(crate) struct Permissions {
+    pub(crate) permissions: Vec<String>,
+}

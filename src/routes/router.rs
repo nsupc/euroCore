@@ -1,7 +1,7 @@
 use crate::controllers;
 use crate::core::error;
 use crate::core::state::AppState;
-use crate::routes::{admin, dispatch, nations, queue, rmbpost, telegram, user};
+use crate::routes::{admin, dispatch, nations, queue, rmbpost, telegram, template, user};
 use axum::error_handling::HandleErrorLayer;
 use axum::routing::{options, patch};
 use axum::{
@@ -77,7 +77,19 @@ pub(crate) async fn routes(
         .route("/users/{id}", get(user::get))
         .route("/users/username/{username}", get(user::get_by_username))
         .route("/users/me/password", patch(user::update_password))
-        .route("/users/{id}/password", patch(admin::change_user_password));
+        .route("/users/{id}/password", patch(admin::change_user_password))
+        .route(
+            "/users/{id}/permissions",
+            post(user::grant_permissions).delete(user::restrict_permissions),
+        );
+
+    // /templates/...
+    let template_router = Router::new()
+        .route(
+            "/templates/{id}",
+            get(template::get).patch(template::update),
+        )
+        .route("/templates", post(template::create));
 
     Router::new()
         .route("/", get(|| async { "Hello, World!" }))
@@ -90,6 +102,7 @@ pub(crate) async fn routes(
         .merge(queue_router)
         .merge(nation_router)
         .merge(user_router)
+        .merge(template_router)
         .with_state(state.clone())
         .route_layer(
             ServiceBuilder::new()

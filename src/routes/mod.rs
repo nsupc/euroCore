@@ -5,4 +5,5 @@ mod queue;
 mod rmbpost;
 pub(crate) mod router;
 mod telegram;
+mod template;
 mod user;

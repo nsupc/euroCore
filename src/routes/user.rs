@@ -88,3 +88,49 @@ pub(crate) async fn update_password(
 
     Ok(Json("Password reset successfully"))
 }
+
+#[tracing::instrument(skip_all)]
+pub(crate) async fn grant_permissions(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+    Extension(user): Extension<Option<AuthorizedUser>>,
+    Json(params): Json<request::Permissions>,
+) -> Result<impl IntoResponse, Error> {
+    validate_user(&user, "admin")?;
+
+    state
+        .user_controller
+        .grant_permissions(id, params.permissions)
+        .await?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+#[tracing::instrument(skip_all)]
+pub(crate) async fn restrict_permissions(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+    Extension(user): Extension<Option<AuthorizedUser>>,
+    Json(params): Json<request::Permissions>,
+) -> Result<impl IntoResponse, Error> {
+    validate_user(&user, "admin")?;
+
+    state
+        .user_controller
+        .remove_permissions(id, params.permissions)
+        .await?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+fn validate_user(user: &Option<AuthorizedUser>, permission: &str) -> Result<(), Error> {
+    if let Some(user) = user {
+        if !user.claims.contains(&String::from("admin")) {
+            return Err(Error::Unauthorized);
+        }
+    } else {
+        return Err(Error::Unauthorized);
+    }
+
+    Ok(())
+}

@@ -166,11 +166,55 @@ impl Controller {
         Ok(())
     }
 
+    #[tracing::instrument(skip_all)]
+    pub(crate) async fn grant_permissions(
+        &self,
+        id: i32,
+        permissions: Vec<String>,
+    ) -> Result<(), Error> {
+        sqlx::query(
+            r#"
+    INSERT INTO user_permissions (user_id, permission_id)
+    SELECT $1, id FROM permissions p WHERE p.name = ANY($2)
+    ON CONFLICT DO NOTHING
+    "#,
+        )
+        .bind(id)
+        .bind(permissions)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    #[tracing::instrument(skip_all)]
+    pub(crate) async fn remove_permissions(
+        &self,
+        id: i32,
+        permissions: Vec<String>,
+    ) -> Result<(), Error> {
+        sqlx::query(
+            r#"
+    DELETE FROM user_permissions
+    WHERE user_id = $1
+    AND permission_id IN (
+        SELECT id FROM permissions p WHERE p.name = ANY($2)
+    )
+    "#,
+        )
+        .bind(id)
+        .bind(permissions)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
     fn hash(&self, value: &str) -> Result<String, Error> {
         bcrypt::hash(value, 12).map_err(Error::Bcrypt)
     }
 
-    pub(crate) fn encode_jwt(&self, user: &AuthorizedUser) -> Result<String, Error> {
+    fn encode_jwt(&self, user: &AuthorizedUser) -> Result<String, Error> {
         let current_time = Utc::now();
         let expiration_time = current_time + Duration::days(1);
 
@@ -240,8 +284,6 @@ fn map_user(row: PgRow) -> AuthorizedUser {
         id: row.get("id"),
         username: row.get("username"),
         password_hash: row.get("password_hash"),
-        claims: row
-            .get::<Option<Vec<String>>, _>("permissions")
-            .unwrap_or_default(),
+        claims: row.try_get("permissions").unwrap_or_default(),
     }
 }
