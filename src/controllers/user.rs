@@ -170,7 +170,7 @@ impl Controller {
         bcrypt::hash(value, 12).map_err(Error::Bcrypt)
     }
 
-    pub(crate) fn encode_jwt(&self, user: &AuthorizedUser) -> Result<String, Error> {
+    fn encode_jwt(&self, user: &AuthorizedUser) -> Result<String, Error> {
         let current_time = Utc::now();
         let expiration_time = current_time + Duration::days(1);
 
