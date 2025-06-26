@@ -61,7 +61,7 @@ pub(crate) async fn update(
 ) -> Result<impl IntoResponse, Error> {
     let user = match user {
         Some(user) => {
-            if !user.claims.contains(&String::from("templates.update")) {
+            if !user.claims.contains(&String::from("templates.edit")) {
                 return Err(Error::Unauthorized);
             }
 
@@ -70,7 +70,7 @@ pub(crate) async fn update(
         None => return Err(Error::Unauthorized),
     };
 
-    state.template_controller.update(id, input).await?;
+    let template = state.template_controller.update(id, input).await?;
 
-    Ok(StatusCode::NO_CONTENT)
+    Ok((StatusCode::OK, Json(template)))
 }

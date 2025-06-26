@@ -19,7 +19,7 @@ impl Controller {
         input: request::Template,
     ) -> Result<response::Template, Error> {
         match sqlx::query(
-            "INSERT INTO templates (nation, tgid, key) VALUES ($1, $2, $3) RETURNING *",
+            "INSERT INTO templates (nation, tgid, key) VALUES ($1, $2, $3) RETURNING *;",
         )
         .bind(input.nation)
         .bind(input.tgid)
@@ -34,7 +34,7 @@ impl Controller {
     }
 
     pub(crate) async fn get(&self, id: uuid::Uuid) -> Result<response::Template, Error> {
-        match sqlx::query("SELECT * FROM templates WHERE id = $1")
+        match sqlx::query("SELECT * FROM templates WHERE id = $1;")
             .bind(id)
             .map(map_template)
             .fetch_one(&self.pool)
@@ -50,21 +50,18 @@ impl Controller {
         &self,
         id: uuid::Uuid,
         input: request::Template,
-    ) -> Result<(), Error> {
-        match sqlx::query(
-            "UPDATE templates SET nation = $1, tgid = $2, key = $3, modified_at = $4 WHERE id = $5",
+    ) -> Result<response::Template, Error> {
+        Ok(sqlx::query(
+            "UPDATE templates SET nation = $1, tgid = $2, key = $3, modified_at = $4 WHERE id = $5 RETURNING *;",
         )
         .bind(input.nation)
         .bind(input.tgid)
         .bind(input.key)
         .bind(chrono::Utc::now())
         .bind(id)
-        .execute(&self.pool)
-        .await
-        {
-            Ok(_) => Ok(()),
-            Err(e) => Err(Error::Sql(e)),
-        }
+        .map(map_template)
+        .fetch_one(&self.pool)
+        .await?)
     }
 }
 
