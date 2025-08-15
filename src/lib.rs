@@ -49,8 +49,8 @@ pub async fn run() -> Result<(), Error> {
     let ratelimiter = ratelimiter::new(
         50,
         Duration::from_secs(30),
-        Duration::from_secs(30),
-        Duration::from_secs(180),
+        Duration::from_millis(30_500),
+        Duration::from_millis(180_500),
         Duration::from_secs(60),
     );
 
